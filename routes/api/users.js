@@ -44,28 +44,19 @@ router.post("/register", (req, res) => {
   });
 });
 
-// @route   GET api/users/register
-// @desc    Register user
-// @access  Public
-// router.post("/register", (req, res) => {
-//   User.findOne({ email: req.body.email }, (err, foundUser) => {
-//     if (err) return res.status(400).json({ Error: err });
-
-//     if (foundUser)
-//       return res.status(400).json({ Email: "Email already exists" });
-
-//     const { firstname, lastname, email, password } = req.body;
-
-//     bcrypt.hash(password, 10, (err, hash) => {
-//       User.create(
-//         { firstname, lastname, email, password: hash },
-//         (err, newUser) => {
-//           if (err) console.log(err);
-//           else res.json(newUser);
-//         }
-//       );
-//     });
-//   });
-// });
+// @route   GET api/users/current
+// @desc    Return current user
+// @access  Private
+router.get(
+  "/current",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.json({
+      id: req.user.id,
+      firstname: req.user.firstname,
+      email: req.user.email
+    });
+  }
+);
 
 module.exports = router;

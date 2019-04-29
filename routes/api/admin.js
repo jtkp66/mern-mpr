@@ -8,12 +8,12 @@ const passport = require("passport");
 // Load User model
 const User = require("../../models/Admin");
 
-// @route   GET api/users/test
-// @desc    Tests users route
+// @route   GET api/admin/test
+// @desc    Tests admin route
 // @access  Public
 router.get("/test", (req, res) => res.json({ msg: "Admin Works" }));
 
-// @route   GET api/users/register
+// @route   GET api/admin/register
 // @desc    Register user
 // @access  Public
 router.post("/register", (req, res) => {
@@ -43,7 +43,7 @@ router.post("/register", (req, res) => {
   });
 });
 
-// @route   GET api/users/login
+// @route   GET api/admin/login
 // @desc    Login User / Returning JWT Token
 // @access  Public
 router.post("/login", (req, res) => {
@@ -64,7 +64,7 @@ router.post("/login", (req, res) => {
         // User Matched
         const payload = {
           id: admin.id,
-          name: admin.name,
+          firstname: admin.firstname,
           avatar: admin.avatar
         }; // Create JWT Payload
 
@@ -86,5 +86,20 @@ router.post("/login", (req, res) => {
     });
   });
 });
+
+// @route   GET api/admin/current
+// @desc    Return current user
+// @access  Private
+router.get(
+  "/current",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    res.json({
+      id: req.user.id,
+      firstname: req.admin.firstname,
+      email: req.admin.email
+    });
+  }
+);
 
 module.exports = router;
