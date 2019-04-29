@@ -43,4 +43,48 @@ router.post("/register", (req, res) => {
   });
 });
 
+// @route   GET api/users/login
+// @desc    Login User / Returning JWT Token
+// @access  Public
+router.post("/login", (req, res) => {
+  const email = req.body.email;
+  const password = req.body.password;
+
+  // Find user by email
+  Admin.findOne({ email }).then(admin => {
+    // Check for admin
+    if (!admin) {
+      errors.email = "admin not found";
+      return res.status(404).json(errors);
+    }
+
+    // Check Password
+    bcrypt.compare(password, admin.password).then(isMatch => {
+      if (isMatch) {
+        // User Matched
+        const payload = {
+          id: admin.id,
+          name: admin.name,
+          avatar: admin.avatar
+        }; // Create JWT Payload
+
+        // Sign Token
+        jwt.sign(
+          payload,
+          keys.secretOrKey,
+          { expiresIn: 3600 },
+          (err, token) => {
+            res.json({
+              success: true,
+              token: "Bearer " + token
+            });
+          }
+        );
+      } else {
+        return res.status(400).json({ Error: "Password Incorrect" });
+      }
+    });
+  });
+});
+
 module.exports = router;
