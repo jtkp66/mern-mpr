@@ -17,17 +17,9 @@ router.get("/test", (req, res) => res.json({ msg: "Users Works" }));
 // @desc    Register user
 // @access  Public
 router.post("/register", (req, res) => {
-  const { errors, isValid } = validateRegisterInput(req.body);
-
-  // Check Validation
-  if (!isValid) {
-    return res.status(400).json(errors);
-  }
-
   User.findOne({ email: req.body.email }).then(user => {
     if (user) {
-      errors.email = "Email already exists";
-      return res.status(400).json(errors);
+      return res.status(400).json({ email: "Email already exists" });
     } else {
       const newUser = new User({
         firstname: req.body.firstname,
@@ -38,7 +30,9 @@ router.post("/register", (req, res) => {
 
       bcrypt.genSalt(10, (err, salt) => {
         bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err;
+          if (err) {
+            console.log(err);
+          }
           newUser.password = hash;
           newUser
             .save()
@@ -49,5 +43,29 @@ router.post("/register", (req, res) => {
     }
   });
 });
+
+// @route   GET api/users/register
+// @desc    Register user
+// @access  Public
+// router.post("/register", (req, res) => {
+//   User.findOne({ email: req.body.email }, (err, foundUser) => {
+//     if (err) return res.status(400).json({ Error: err });
+
+//     if (foundUser)
+//       return res.status(400).json({ Email: "Email already exists" });
+
+//     const { firstname, lastname, email, password } = req.body;
+
+//     bcrypt.hash(password, 10, (err, hash) => {
+//       User.create(
+//         { firstname, lastname, email, password: hash },
+//         (err, newUser) => {
+//           if (err) console.log(err);
+//           else res.json(newUser);
+//         }
+//       );
+//     });
+//   });
+// });
 
 module.exports = router;
